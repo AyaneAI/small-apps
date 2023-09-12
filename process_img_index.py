@@ -7,23 +7,53 @@
 @Version :   1.0
 @Contact :   616562636@qq.com
 @License :   (C)Copyright 2023, wwb
-@Desc    :   None
+@Desc    :   支持多种格式
 '''
 
 # here put the import lib
 import os
 
-START = 1
+suffixes = [".webp", ".png", ".jpg", ".jpeg"]
 
-folder_path = "D://Users/User/Desktop/zip_session_b10c3a081fb841d1b394f1c87de9e697"  # 文件夹路径
+folder_path = "D:/Users/User/Desktop/img"  # 文件夹路径
 file_names = os.listdir(folder_path)  # 获取文件夹下所有文件名称
+
+file_count = len(file_names)
 
 os.chdir(folder_path)
 
-index = START
+INIT_INDEX = 59  # 起始编号
+
+digit_set = set()
+# 首先查看是否有数字命名的文件，将其加入屏蔽名单里
 for file_name in file_names:
-    if file_name.endswith(".webp"):
-        name_without_extension = os.path.splitext(file_name)[0]
-        new_file_name = file_name.replace(name_without_extension, str(index))
-        os.rename(file_name, new_file_name)
-        index += 1
+    name_without_extension = os.path.splitext(file_name)[0]
+    if name_without_extension.isdigit():
+        digit_set.add(int(name_without_extension))
+
+digit_exist = True if len(digit_set) > 0 else False
+# 由于存在场景：不同的格式的文件可能文件名（后缀之前的命名）可能是相同的，例如1.webp、1.jpg、1.png
+# 因此选取max_set最大值，作为起始名称
+index = max(digit_set) + 1 if digit_exist else INIT_INDEX
+
+for file_name in file_names:
+    for suffix in suffixes:
+        if file_name.endswith(suffix):
+            name_without_extension = os.path.splitext(file_name)[0]
+            new_file_name = file_name.replace(name_without_extension, str(index))
+            os.rename(file_name, new_file_name)
+            print(f"index: {index}, {file_name} ends with {suffix}")
+            index += 1
+
+# 如果文件中存在数字，需要再编码一次
+if digit_exist:
+    file_names = os.listdir(folder_path)
+    index = INIT_INDEX
+    for file_name in file_names:
+        for suffix in suffixes:
+            if file_name.endswith(suffix):
+                name_without_extension = os.path.splitext(file_name)[0]
+                new_file_name = file_name.replace(name_without_extension, str(index))
+                os.rename(file_name, new_file_name)
+                print(f"index: {index}, {file_name} ends with {suffix}")
+                index += 1
