@@ -12,8 +12,10 @@
 
 # here put the import lib
 import os
+from PIL import Image
 
-suffixes = [".webp", ".png", ".jpg", ".jpeg"]
+suffixes = [".webp", ".png", ".jpg", ".jpeg", ".jfif"]
+png_format = ".png"
 
 folder_path = "D:/Users/User/Desktop/img"  # 文件夹路径
 file_names = os.listdir(folder_path)  # 获取文件夹下所有文件名称
@@ -22,10 +24,11 @@ file_count = len(file_names)
 
 os.chdir(folder_path)
 
-INIT_INDEX = 59  # 起始编号
+INIT_INDEX = 1  # 起始编号
 
 digit_set = set()
 # 首先查看是否有数字命名的文件，将其加入屏蔽名单里
+# 转换图片格式为png
 for file_name in file_names:
     name_without_extension = os.path.splitext(file_name)[0]
     if name_without_extension.isdigit():
@@ -40,6 +43,16 @@ for file_name in file_names:
     for suffix in suffixes:
         if file_name.endswith(suffix):
             name_without_extension = os.path.splitext(file_name)[0]
+            file_extension = os.path.splitext(file_name)[1]
+            # 转换图片格式为png
+            if file_extension != png_format:
+                # 打开原始图像文件
+                with Image.open(file_name) as img:
+                    # 将图像转换为PNG格式
+                    old_file = file_name
+                    file_name = name_without_extension + png_format
+                    img.save(file_name)
+                    os.remove(old_file)
             new_file_name = file_name.replace(name_without_extension, str(index))
             os.rename(file_name, new_file_name)
             print(f"index: {index}, {file_name} ends with {suffix}")
